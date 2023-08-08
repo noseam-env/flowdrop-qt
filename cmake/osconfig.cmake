@@ -1,0 +1,10 @@
+include_guard(GLOBAL)
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    set(OS_WINDOWS TRUE)
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
+    set(OS_MACOS TRUE)
+elseif(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux|FreeBSD|OpenBSD")
+    string(TOUPPER "${CMAKE_HOST_SYSTEM_NAME}" _SYSTEM_NAME_U)
+    set(OS_${_SYSTEM_NAME_U} TRUE)
+endif()

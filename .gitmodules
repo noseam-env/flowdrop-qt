@@ -1,0 +1,12 @@
+[submodule "ThirdParty/WinToast"]
+	path = ThirdParty/WinToast
+	url = https://github.com/mohabouje/WinToast
+[submodule "ThirdParty/libflowdrop"]
+	path = ThirdParty/libflowdrop
+	url = https://github.com/noseam-env/libflowdrop
+[submodule "ThirdParty/libknotdeviceinfo"]
+	path = ThirdParty/libknotdeviceinfo
+	url = https://github.com/noseam-env/libknotdeviceinfo
+[submodule "ThirdParty/GSL"]
+	path = ThirdParty/GSL
+	url = https://github.com/microsoft/GSL

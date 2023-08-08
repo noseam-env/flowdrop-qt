@@ -1,0 +1,43 @@
+#define PRODUCT_COMPANY_NAME              "@product_company_name@"
+#define PRODUCT_COMPANY_COPYRIGHT         "@product_company_copyright@"
+#define PRODUCT_NAME                      "@product_name@"
+#define PRODUCT_INTERNAL_NAME             "@product_internal_name@"
+#define PRODUCT_ORIGINAL_FILENAME         "@product_original_filename@"
+#define PRODUCT_FILE_DESCRIPTION          "@product_file_description@"
+#define PRODUCT_VERSION                   @app_version_comma@
+#define PRODUCT_VERSION_STR               "@app_version_dot@"
+#define PRODUCT_COMMENTS                  "@product_comments@"
+#define FILE_VERSION                      @app_version_comma@
+#define FILE_VERSION_STR                  "@app_version_dot@"
+
+#include <winres.h>
+
+IDI_ICON1               ICON                    "@CMAKE_CURRENT_SOURCE_DIR@\\Resources\\app_icon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+    FILEVERSION FILE_VERSION
+    PRODUCTVERSION PRODUCT_VERSION
+    FILEOS 0x4L
+    FILETYPE 0x1L
+    FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000904b0"
+        BEGIN
+            VALUE "Comments", PRODUCT_COMMENTS
+            VALUE "CompanyName", PRODUCT_COMPANY_NAME
+            VALUE "FileDescription", PRODUCT_FILE_DESCRIPTION
+            VALUE "FileVersion", FILE_VERSION_STR
+            VALUE "InternalName", PRODUCT_INTERNAL_NAME
+            VALUE "LegalCopyright", PRODUCT_COMPANY_COPYRIGHT
+            VALUE "OriginalFilename", PRODUCT_ORIGINAL_FILENAME
+            VALUE "ProductName", PRODUCT_NAME
+            VALUE "ProductVersion", PRODUCT_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x9, 1200
+    END
+END

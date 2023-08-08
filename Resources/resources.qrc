@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/Resources/">
+        <file>fonts/Roboto-Bold.ttf</file>
+        <file>fonts/Roboto-Medium.ttf</file>
+        <file>fonts/Roboto-Regular.ttf</file>
+        <file>icons/coffee.svg</file>
+        <file>icons/device_android.svg</file>
+        <file>icons/device_ios.svg</file>
+        <file>icons/device_mac.svg</file>
+        <file>icons/device_pc.svg</file>
+        <file>app_icon.svg</file>
+    </qresource>
+</RCC>
