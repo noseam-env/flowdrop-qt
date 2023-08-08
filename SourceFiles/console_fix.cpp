@@ -44,7 +44,7 @@ void consoleFix() {
 
 #else
 
-#include <unistd.h>
+#include <csignal>
 #include <sys/types.h>
 #include <sys/wait.h>
 
