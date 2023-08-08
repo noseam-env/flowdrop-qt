@@ -310,6 +310,7 @@ ReceiversWindow::ReceiversWindow(const QStringList& fileNames) : _fileNames(file
     QObject::connect(_discoverThread, &QThread::started, [this](){
         flowdrop::setDebug(true);
         flowdrop::discover([this](const flowdrop::DeviceInfo &deviceInfo){
+            if (deviceInfo.id == App().deviceInfo().id) return;
             QMetaObject::invokeMethod(this, "addReceiver", Qt::QueuedConnection, Q_ARG(flowdrop::DeviceInfo, deviceInfo));
         }, [this](){
             return _stopDiscover.load();
