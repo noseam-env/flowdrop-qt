@@ -137,6 +137,7 @@ elseif (OS_MACOS)
             SourceFiles/platform/mac/notifications_mac.mm
             SourceFiles/platform/mac/share_target_mac.cpp
             SourceFiles/platform/mac/tray_mac.mm
+            SourceFiles/platform/main.cpp
             SourceFiles/file_lock_posix.cpp)
 elseif (OS_WINDOWS)
     # WinToast
