@@ -26,12 +26,12 @@
 #include "../../ui_util.h"
 
 
-class MenuItem : public QWidget {
+class TrayMenuItem : public QWidget {
     Q_OBJECT
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
 
 public:
-    MenuItem(const QString& text, QWidget* parent = nullptr) : QWidget(parent), _text(text) {
+    TrayMenuItem(const QString& text, QWidget* parent = nullptr) : QWidget(parent), _text(text) {
         setCursor(Qt::PointingHandCursor);
 
         QHBoxLayout* layout = new QHBoxLayout(this);
@@ -67,7 +67,9 @@ protected:
         Q_UNUSED(event)
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
-        painter.fillRect(rect(), _backgroundColor);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(_backgroundColor);
+        painter.drawRoundedRect(rect(), 8, 8);
     }
 
     void enterEvent(QEnterEvent *event) override {
@@ -101,13 +103,15 @@ private:
     QPropertyAnimation *_animation;
 };
 
-class CustomMenu : public QWidget {
+class TrayMenu : public QWidget {
     Q_OBJECT
 
 public:
-    CustomMenu(QWidget* parent = nullptr) : QWidget(parent) {
-        setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+    explicit TrayMenu(QWidget* parent = nullptr) : QWidget(parent) {
+        setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
         setAttribute(Qt::WA_TranslucentBackground);
+        setMouseTracking(true);
+        setFocusPolicy(Qt::WheelFocus);
 
         _layout = new QVBoxLayout(this);
         _layout->setContentsMargins(0, 0, 0, 0);
@@ -117,40 +121,27 @@ public:
     }
 
     void addAction(const QString &text, std::function<void()> &callback) {
-        MenuItem* settingsItem = new MenuItem(text);
-        connect(settingsItem, &MenuItem::clicked, [callback, this]() {
-            closeMenu();
+        auto* settingsItem = new TrayMenuItem(text);
+        connect(settingsItem, &TrayMenuItem::clicked, [callback, this]() {
+            close();
             callback();
         });
         _layout->addWidget(settingsItem);
     }
 
-private slots:
-    void closeMenu() {
-        close();
-    }
-
 protected:
     void paintEvent(QPaintEvent* event) override {
-        Q_UNUSED(event)
+        QWidget::paintEvent(event);
+
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
 
-        QPainterPath roundedPath;
-        roundedPath.addRoundedRect(rect(), 8, 8);
-
-        QRegion clipRegion(roundedPath.toFillPolygon().toPolygon());
-        painter.setClipRegion(clipRegion);
-
-        QStyleOption opt;
-        opt.initFrom(this);
-        style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
-
-        //painter.fillRect(rect(), style::trayBg);
+        painter.setPen(Qt::NoPen);
+        painter.setBrush(style::trayBg);
+        painter.drawRoundedRect(rect(), 8, 8);
     }
 
     void showEvent(QShowEvent* event) override {
-        installEventFilter(this);
         QWidget::showEvent(event);
 
         QRect desiredGeometry = QRect(QCursor::pos(), sizeHint());
@@ -174,37 +165,9 @@ protected:
         move(x, y);
     }
 
-    void hideEvent(QHideEvent* event) override {
-        removeEventFilter(this);
-        QWidget::hideEvent(event);
+    void focusOutEvent(QFocusEvent *event) override {
+        close();
     }
-
-    /*bool event(QEvent* event) override {
-        if (event->type() == QEvent::FocusOut) {
-            closeMenu();
-        }
-        return QWidget::event(event);
-    }
-
-    bool eventFilter(QObject* obj, QEvent* event) override {
-        qDebug() << "event" << event->type();
-        if (event->type() == QEvent::KeyPress) {
-            qDebug() << "event" << "MEGA";
-        }
-        if (event->type() == QEvent::FocusOut) {
-            closeMenu();
-        }
-        if (event->type() == QEvent::MouseButtonPress ||
-            event->type() == QEvent::MouseMove ||
-            event->type() == QEvent::MouseButtonRelease ||
-            event->type() == QEvent::MouseButtonDblClick) {
-
-            if (isVisible() && !rect().contains(mapFromGlobal(QCursor::pos()))) {
-                closeMenu();
-            }
-        }
-        return QWidget::eventFilter(obj, event);
-    }*/
 
 private:
     QVBoxLayout *_layout;
@@ -214,7 +177,7 @@ namespace Platform {
 
     struct Tray::Impl {
         QScopedPointer<QSystemTrayIcon> _icon;
-        QScopedPointer<CustomMenu> _menu;
+        QScopedPointer<TrayMenu> _menu;
 
         void renderAndSetIcon(bool dark) const {
             const auto size = GetSystemMetrics(SM_CXSMICON); // icon size by x
@@ -236,7 +199,7 @@ namespace Platform {
     Tray::Tray() : pImpl(new Impl) {
         pImpl->_icon.reset(new QSystemTrayIcon);
         pImpl->_icon->setToolTip(QApplication::applicationName());
-        pImpl->_menu.reset(new CustomMenu);
+        pImpl->_menu.reset(new TrayMenu);
 
         QObject::connect(pImpl->_icon.get(), &QSystemTrayIcon::activated, [this](){
             if (pImpl->_menu->isVisible()) {
@@ -244,6 +207,7 @@ namespace Platform {
             } else {
                 //pImpl->_menu->update();
                 pImpl->_menu->show();
+                pImpl->_menu->activateWindow();
             }
         });
 
