@@ -10,7 +10,6 @@
 #include "platform/platform_notifications.h"
 #include "resources.h"
 #include "application.h"
-#include "console_fix.h"
 #include "single_instance.h"
 
 #include <QDir>
@@ -68,22 +67,23 @@ void initQtMessageLogging() {
 void continueLaunch() {
     Resources::Init();
 
-    bool notificationsSupported = Platform::Notifications::Supported();
-    if (notificationsSupported) {
-        notificationsSupported = Platform::Notifications::Init();
+    bool askSupported = false;
+    auto supportLevel = Platform::Notifications::Supported();
+    if (supportLevel != Platform::Notifications::NOT_SUPPORTED && Platform::Notifications::Init()) {
+        askSupported = supportLevel == Platform::Notifications::FULL;
     }
-    if (!notificationsSupported) {
-        qInfo() << "Notifications not supported, using auto accept mode";
+    if (askSupported) {
+        qInfo() << "Action notifications not supported, using auto accept mode";
     }
 
     auto *application = new Application();
-    application->setAutoAcceptMode(!notificationsSupported);
+    application->setAskSupported(askSupported);
     application->run();
 }
 
 int launch(int argc, char *argv[]) {
-    QApplication::setApplicationName("FlowDrop");
-    QApplication::setApplicationVersion("0.0.1");
+    QApplication::setApplicationName("FlowDrop Qt");
+    QApplication::setApplicationVersion(AppVersionStr);
 
     initQtMessageLogging();
 
@@ -118,8 +118,6 @@ int launch(int argc, char *argv[]) {
     QString tempPath = QDir::tempPath() + "/flowdrop-qt";
     singleInstance.start("flowdrop-qt", tempPath, onPrimaryInstance, onSecondaryInstance, onFailInstance);
 #endif
-
-    //consoleFix();
 
     int result = app.exec();
 

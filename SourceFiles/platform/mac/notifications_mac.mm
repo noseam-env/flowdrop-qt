@@ -27,8 +27,8 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 @end
 
 namespace Platform::Notifications {
-    bool Supported() {
-        return false;
+    SupportLevel Supported() {
+        return NOT_SUPPORTED;
     }
 
     bool Init() {
@@ -39,7 +39,7 @@ namespace Platform::Notifications {
         callback(true);
     }
 
-    void infoNotificaiton(const QString& text, Fn<void()> onClick) {
+    void infoNotification(const QString& text, Fn<void()> onClick) {
 
     }
 } // namespace Platform::Notifications

@@ -13,8 +13,8 @@
 #include <glib.h>
 
 namespace Platform::Notifications {
-    bool Supported() {
-        return true;
+    SupportLevel Supported() {
+        return TEXT_ONLY;
     }
 
     bool Init() {
@@ -29,7 +29,7 @@ namespace Platform::Notifications {
         callback(true);
     }
 
-    void infoNotificaiton(const QString& text, Fn<void()> onClick) {
+    void infoNotification(const QString& text, Fn<void()> onClick) {
         NotifyNotification *notification = notify_notification_new(
                 "FlowDrop",
                 text.toStdString().c_str(),

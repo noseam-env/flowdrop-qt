@@ -207,6 +207,22 @@ public:
         update();
     }
 
+    void setToggled(bool value) {
+        if (_isToggled == value) return;
+
+        _isToggled = value;
+        emit toggled(_isToggled);
+
+        if (_ballAnimation->state() == QAbstractAnimation::Running) {
+            _ballAnimation->stop();
+        }
+
+        int endValue = _isToggled ? width() - 24 - 4 : 4;
+        _ballAnimation->setStartValue(_ballX);
+        _ballAnimation->setEndValue(endValue);
+        _ballAnimation->start();
+    }
+
     void paintEvent(QPaintEvent *) override {
         QPainter painter(this);
 
@@ -220,17 +236,7 @@ public:
     }
 
     void mousePressEvent(QMouseEvent *) override {
-        if (_ballAnimation->state() == QAbstractAnimation::Running) {
-            _ballAnimation->stop();
-        }
-
-        _isToggled = !_isToggled;
-        emit toggled(_isToggled);
-        int endValue = _isToggled ? width() - 24 - 4 : 4;
-
-        _ballAnimation->setStartValue(_ballX);
-        _ballAnimation->setEndValue(endValue);
-        _ballAnimation->start();
+        setToggled(!_isToggled);
     }
 
     void enterEvent(QEnterEvent *event) override {
@@ -505,10 +511,11 @@ SettingsWindow::SettingsWindow() : QMainWindow() {
     element3->addLeftWidget(label3);
 
     auto *toggle3 = new DesignedToggle(element3);
+    toggle3->setToggled(App().isAutoAcceptMode());
     element3->addRightWidget(toggle3);
 
     QObject::connect(toggle3, &DesignedToggle::toggled, [](bool value) {
-
+        App().setAutoAcceptMode(value);
     });
 
     /*auto *element4 = new SettingElement(widget1);
@@ -559,7 +566,7 @@ SettingsWindow::SettingsWindow() : QMainWindow() {
 
     footerTextLayout->addStretch(1);
 
-    auto *footerText1 = new MyText("FlowDrop Qt 0.0.1", 11);
+    auto *footerText1 = new MyText(QApplication::applicationName() + " " + QApplication::applicationVersion(), 11);
     footerText1->setAlignment(Qt::AlignLeft | Qt::AlignBottom);
     footerText1->setColor(style::text4);
     footerTextLayout->addWidget(footerText1);

@@ -62,6 +62,11 @@ public:
         update();
     }
 
+    void reset() {
+        _animation->stop();
+        setBackgroundColor(style::trayBg);
+    }
+
 protected:
     void paintEvent(QPaintEvent* event) override {
         Q_UNUSED(event)
@@ -129,6 +134,44 @@ public:
         _layout->addWidget(settingsItem);
     }
 
+    bool prepareGeometryFor(const QPoint &p) {
+        QList<QScreen*> screens = QGuiApplication::screens();
+        if (screens.isEmpty()) return false;
+
+        QScreen* screen = QGuiApplication::screenAt(p);
+        this->setScreen(screen);
+
+        QRect availableGeometry = screen->availableGeometry();
+
+        QSize windowSize = this->sizeHint();
+        int width = windowSize.width();
+        int height = windowSize.height();
+
+        auto result = p;
+
+        // offset this little bit:
+        int offset = 16;
+        if (result.x() - offset > availableGeometry.x() - offset) {
+            result.setX(result.x() - offset);
+        }
+
+        if (result.x() + width > availableGeometry.x() + availableGeometry.width()) {
+            result.setX(availableGeometry.x() + availableGeometry.width() - width);
+        }
+        if (result.x() < availableGeometry.x()) {
+            result.setX(availableGeometry.x());
+        }
+        if (result.y() + height > availableGeometry.y() + availableGeometry.height()) {
+            result.setY(availableGeometry.y() + availableGeometry.height() - height);
+        }
+        if (result.y() < availableGeometry.y()) {
+            result.setY(availableGeometry.y());
+        }
+
+        this->move(result);
+        return true;
+    }
+
 protected:
     void paintEvent(QPaintEvent* event) override {
         QWidget::paintEvent(event);
@@ -143,26 +186,17 @@ protected:
 
     void showEvent(QShowEvent* event) override {
         QWidget::showEvent(event);
-
-        QRect desiredGeometry = QRect(QCursor::pos(), sizeHint());
-
-        QList<QScreen*> screens = QGuiApplication::screens();
-        if (screens.isEmpty()) return;
-        QScreen* screen = QGuiApplication::screenAt(QCursor::pos());
-        QRect availableGeometry = screen->availableGeometry();
-
-        int x = desiredGeometry.x();
-        int y = desiredGeometry.y();
-
-        if (x + desiredGeometry.width() > availableGeometry.width()) {
-            x = availableGeometry.width() - desiredGeometry.width();
+        prepareGeometryFor(QCursor::pos());
+        // snail code sorry
+        for (int i = 0; i < _layout->count(); ++i) {
+            QLayoutItem *item = _layout->itemAt(i);
+            if (item) {
+                QWidget *widget = item->widget();
+                if (widget) {
+                    ((TrayMenuItem *) widget)->reset();
+                }
+            }
         }
-
-        if (y + desiredGeometry.height() > availableGeometry.height()) {
-            y = availableGeometry.height() - desiredGeometry.height();
-        }
-
-        move(x, y);
     }
 
     void focusOutEvent(QFocusEvent *event) override {

@@ -18,9 +18,13 @@ public:
 
     void run();
 
+    bool isAutoAccept();
+
     bool isAutoAcceptMode();
 
     void setAutoAcceptMode(bool enabled);
+
+    void setAskSupported(bool supported);
 
     QString getDestDir();
 
@@ -42,7 +46,7 @@ private:
     flowdrop::DeviceInfo _deviceInfo;
     flowdrop::Server *_server;
     QThread *_serverThread = nullptr;
-    bool _autoAcceptMode = false;
+    bool _askSupported = false;
 };
 
 [[nodiscard]] Application &App();

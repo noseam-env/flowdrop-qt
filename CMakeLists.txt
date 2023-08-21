@@ -84,8 +84,6 @@ set(FWQ_SOURCES ${FWQ_SOURCES}
         SourceFiles/application.h
         SourceFiles/base_util.cpp
         SourceFiles/base_util.h
-        SourceFiles/console_fix.cpp
-        SourceFiles/console_fix.h
         SourceFiles/file_lock.h
         SourceFiles/icon_util.cpp
         SourceFiles/icon_util.h
@@ -165,6 +163,11 @@ qt6_add_resources(FWQ_RESOURCES Resources/resources.qrc)
 set(FWQ_SOURCES ${FWQ_SOURCES} ${FWQ_RESOURCES})
 
 add_executable(flowdrop-qt WIN32 MACOSX_BUNDLE ${FWQ_SOURCES})
+
+target_compile_definitions(flowdrop-qt PRIVATE -DFLOWDROPQT_VERSION=${app_version_string})
+target_compile_definitions(flowdrop-qt PRIVATE
+        AppVersionStr="${app_version_string}"
+)
 
 set_target_properties(flowdrop-qt PROPERTIES AUTORCC TRUE)
 set_target_properties(flowdrop-qt PROPERTIES AUTOMOC TRUE)

@@ -82,8 +82,8 @@ private:
 }*/
 
 namespace Platform::Notifications {
-    bool Supported() {
-        return WinToast::isCompatible();
+    SupportLevel Supported() {
+        return WinToast::isCompatible() ? FULL : NOT_SUPPORTED;
     }
 
     bool Init() {
@@ -117,7 +117,7 @@ namespace Platform::Notifications {
         }
     }
 
-    void infoNotificaiton(const QString& text, Fn<void()> onClick) {
+    void infoNotification(const QString& text, Fn<void()> onClick) {
         WinToastTemplate templ = WinToastTemplate(WinToastTemplate::Text01);
         templ.setTextField(text.toStdWString(), WinToastTemplate::FirstLine);
 

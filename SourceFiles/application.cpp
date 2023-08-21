@@ -36,7 +36,7 @@ QString getDeviceName(const flowdrop::DeviceInfo &d) {
 class EventListener : public flowdrop::IEventListener {
     void onReceivingEnd(const flowdrop::DeviceInfo &sender, std::uint64_t totalSize, const std::vector<flowdrop::FileInfo> &receivedFiles) override {
         QString text = "Received " + QString::number(receivedFiles.size()) + " file(s) from " + getDeviceName(sender);
-        Platform::Notifications::infoNotificaiton(text, [](){
+        Platform::Notifications::infoNotification(text, [](){
             QString folderPath = App().getDestDir();
             QUrl folderUrl = QUrl::fromLocalFile(folderPath);
             if (!QDesktopServices::openUrl(folderUrl)) {
@@ -89,7 +89,7 @@ void Application::run() {
     _server->setDestDir(_settings->getValue(Setting::Dest).toStdString());
     _server->setEventListener(new EventListener);
     _server->setAskCallback([this](const flowdrop::SendAsk &sendAsk) {
-        if (isAutoAcceptMode()) return true;
+        if (isAutoAccept()) return true;
         std::promise<bool> addressPromise;
         std::future<bool> addressFuture = addressPromise.get_future();
         QString text = getDeviceName(sendAsk.sender) + " would like to send you " + QString::number(sendAsk.files.size()) + " file(s)";
@@ -116,15 +116,24 @@ void Application::run() {
     });
 }
 
-bool Application::isAutoAcceptMode() {
-    if (_autoAcceptMode) {
-        return _autoAcceptMode;
+bool Application::isAutoAccept() {
+    if (!_askSupported) {
+        return true;
     }
+    return isAutoAcceptMode();
+}
+
+bool Application::isAutoAcceptMode() {
     return _settings->getValue(Setting::AskMode) == "AUTO";
 }
 
 void Application::setAutoAcceptMode(bool enabled) {
-    _autoAcceptMode = enabled;
+    _settings->setValue(Setting::AskMode, enabled ? "AUTO" : "ALWAYS");
+    _settings->save();
+}
+
+void Application::setAskSupported(bool supported) {
+    _askSupported = supported;
 }
 
 QString Application::getDestDir() {

@@ -13,12 +13,18 @@
 
 namespace Platform {
     namespace Notifications {
-        bool Supported();
+        enum SupportLevel {
+            FULL,
+            TEXT_ONLY,
+            NOT_SUPPORTED
+        };
+
+        SupportLevel Supported();
 
         bool Init();
 
         void askNotification(const QString &text, Fn<void(bool)> callback);
 
-        void infoNotificaiton(const QString& text, Fn<void()> onClick);
+        void infoNotification(const QString& text, Fn<void()> onClick);
     } // namespace Notifications
 } // namespace Platform
